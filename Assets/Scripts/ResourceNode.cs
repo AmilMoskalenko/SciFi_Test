@@ -2,11 +2,18 @@ using UnityEngine;
 
 public class ResourceNode : MonoBehaviour
 {
-    public bool IsReserved => _isReserved;
-    private bool _isReserved = false;
+    public Team? ReservedByTeam { get; private set; }
 
-    public void Reserve()
+    public bool IsReservedByTeam(Team team) => ReservedByTeam == team;
+    public bool IsReserved => ReservedByTeam != null;
+
+    public void Reserve(Team team)
     {
-        _isReserved = true;
+        ReservedByTeam = team;
+    }
+
+    public void Unreserve()
+    {
+        ReservedByTeam = null;
     }
 }

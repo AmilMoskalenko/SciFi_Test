@@ -8,10 +8,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _dronesPerTeam;
     [SerializeField] private float _droneSpeed;
     [SerializeField] private float _resourceSpawnInterval;
+    [Header("Field")]
     [SerializeField] private Transform _redBase;
     [SerializeField] private Transform _blueBase;
     [SerializeField] private GameObject _dronePrefab;
     [SerializeField] private GameObject _resourcePrefab;
+    [SerializeField] private Material _redMaterial;
+    [SerializeField] private Material _blueMaterial;
 
     public float DroneSpeed => _droneSpeed;
 
@@ -22,18 +25,25 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        int initialResourceCount = _dronesPerTeam * 2;
+        for (int i = 0; i < initialResourceCount; i++)
+        {
+            ResourceManager.Instance.SpawnResource(_resourcePrefab);
+        }
         ResourceManager.Instance.StartSpawning(_resourcePrefab, _resourceSpawnInterval);
-        SpawnDrones(Team.Red, _dronesPerTeam, _redBase);
-        SpawnDrones(Team.Blue, _dronesPerTeam, _blueBase);
+        for (int i = 0; i < _dronesPerTeam; i++)
+        {
+            SpawnDrones(Team.Red, _redBase);
+            SpawnDrones(Team.Blue, _blueBase);
+        }
     }
 
-    public void SpawnDrones(Team team, int count, Transform baseZone)
+    public void SpawnDrones(Team team, Transform baseZone)
     {
-        for (int i = 0; i < count; i++)
-        {
-            GameObject droneGO = Instantiate(_dronePrefab);
-            var controller = droneGO.GetComponent<DroneController>();
-            controller.Initialize(team, baseZone);
-        }
+        GameObject droneGO = Instantiate(_dronePrefab);
+        droneGO.transform.position = baseZone.position + new Vector3(Random.Range(-2f, 2f), 0, Random.Range(-2f, 2f));
+        droneGO.GetComponent<Renderer>().material = team == Team.Red ? _redMaterial : _blueMaterial;
+        var controller = droneGO.GetComponent<DroneController>();
+        controller.Initialize(team, baseZone);
     }
 }

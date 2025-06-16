@@ -30,33 +30,44 @@ public class DroneController : MonoBehaviour
     {
         while (true)
         {
-            if (_currentState == DroneState.Idle || _currentState == DroneState.Delivering)
+            if (_currentState == DroneState.Idle)
             {
-                _currentTarget = ResourceManager.Instance.FindClosestAvailable(transform.position);
+                _currentTarget = ResourceManager.Instance.FindClosestAvailable(transform.position, _team);
                 if (_currentTarget != null)
                 {
-                    _currentTarget.Reserve();
+                    _currentTarget.Reserve(_team);
                     _agent.SetDestination(_currentTarget.transform.position);
                     _currentState = DroneState.MovingToResource;
                 }
             }
             else if (_currentState == DroneState.MovingToResource)
             {
-                if (Vector3.Distance(transform.position, _currentTarget.transform.position) < 1f)
+                if (_currentTarget == null)
+                {
+                    _currentState = DroneState.Idle;
+                }
+                else if (Vector3.Distance(transform.position, _currentTarget.transform.position) < 1f)
                 {
                     _currentState = DroneState.Collecting;
                     yield return new WaitForSeconds(2f);
-                    ResourceManager.Instance.CollectResource(_currentTarget);
+                    if (_currentTarget != null && _currentTarget.gameObject != null)
+                    {
+                        ResourceManager.Instance.CollectResource(_currentTarget);
+                        _currentTarget.Unreserve();
+                    }
                     _agent.SetDestination(_baseZone.position);
                     _currentState = DroneState.Returning;
                 }
             }
             else if (_currentState == DroneState.Returning)
             {
-                if (Vector3.Distance(transform.position, _baseZone.position) < 1f)
+                if (Vector3.Distance(transform.position, _baseZone.position) < 2f)
                 {
+                    BaseZone bz = _baseZone.GetComponent<BaseZone>();
+                    bz.OnResourceDelivered();
                     _currentState = DroneState.Delivering;
                     yield return new WaitForSeconds(0.5f);
+                    _currentState = DroneState.Idle;
                 }
             }
             yield return null;
