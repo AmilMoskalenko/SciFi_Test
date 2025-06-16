@@ -8,5 +8,6 @@ public class BaseZone : MonoBehaviour
     public void OnResourceDelivered()
     {
         _collectedCount++;
+        UIManager.Instance.UpdateScore(_team, _collectedCount);
     }
 }

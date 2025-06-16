@@ -16,7 +16,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Material _redMaterial;
     [SerializeField] private Material _blueMaterial;
 
-    public float DroneSpeed => _droneSpeed;
+    public int DronesPerTeam
+    {
+        get => _dronesPerTeam;
+        set => _dronesPerTeam = value;
+    }
+    public float DroneSpeed
+    {
+        get => _droneSpeed;
+        set => _droneSpeed = value;
+    }
+    public float ResourceSpawnInterval
+    {
+        get => _resourceSpawnInterval;
+        set => _resourceSpawnInterval = value;
+    }
 
     private void Awake()
     {
