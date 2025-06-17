@@ -1,5 +1,7 @@
 # SciFi_Test
 Test sci-fi game
+[![Геймплей](https://img.youtube.com/vi/wGHsJBK3_VA/0.jpg)](https://youtu.be/wGHsJBK3_VA)
+
 
 ## Краткое описание
 
