@@ -15,6 +15,8 @@ public class DroneController : MonoBehaviour
     private NavMeshAgent _agent;
     private LineRenderer _lineRenderer;
     private bool _showPath;
+    private float _retargetTimer;
+    private const float RetargetInterval = 1f;
 
     private void Awake()
     {
@@ -69,8 +71,13 @@ public class DroneController : MonoBehaviour
                 {
                     _currentState = DroneState.Idle;
                 }
+                else if (_currentTarget == null || !ResourceManager.Instance.ContainsResource(_currentTarget))
+                {
+                    _currentState = DroneState.Idle;
+                }
                 else if (Vector3.Distance(transform.position, _currentTarget.transform.position) < 1f)
                 {
+                    ResourceManager.Instance.OccupyResource(_currentTarget);
                     _currentState = DroneState.Collecting;
                     yield return new WaitForSeconds(2f);
                     if (_currentTarget != null && _currentTarget.gameObject != null)
@@ -81,11 +88,33 @@ public class DroneController : MonoBehaviour
                     _agent.SetDestination(_baseZone.position);
                     _currentState = DroneState.Returning;
                 }
+                else
+                {
+                    _retargetTimer += Time.deltaTime;
+                    if (_retargetTimer >= RetargetInterval)
+                    {
+                        _retargetTimer = 0f;
+                        var newTarget = ResourceManager.Instance.FindClosestAvailable(transform.position, _team);
+                        if (newTarget != null && newTarget != _currentTarget)
+                        {
+                            float currentDist = Vector3.Distance(transform.position, _currentTarget.transform.position);
+                            float newDist = Vector3.Distance(transform.position, newTarget.transform.position);
+                            if (newDist + 0.1f < currentDist)
+                            {
+                                _currentTarget.Unreserve();
+                                _currentTarget = newTarget;
+                                _currentTarget.Reserve(_team);
+                                _agent.SetDestination(_currentTarget.transform.position);
+                            }
+                        }
+                    }
+                }
             }
             else if (_currentState == DroneState.Returning)
             {
                 if (Vector3.Distance(transform.position, _baseZone.position) < 2f)
                 {
+                    PlayUnloadEffect();
                     BaseZone bz = _baseZone.GetComponent<BaseZone>();
                     bz.OnResourceDelivered();
                     _currentState = DroneState.Delivering;
@@ -93,6 +122,7 @@ public class DroneController : MonoBehaviour
                     _currentState = DroneState.Idle;
                 }
             }
+            AvoidanceSystem.ApplySeparation(this);
             yield return null;
         }
     }
@@ -108,6 +138,13 @@ public class DroneController : MonoBehaviour
         _showPath = show;
         if (!show && _lineRenderer != null)
             _lineRenderer.enabled = false;
+    }
+
+    private void PlayUnloadEffect()
+    {
+        var particles = GameManager.Instance.GetBaseParticles(_team);
+        if (particles != null)
+            particles.Play();
     }
 }
 

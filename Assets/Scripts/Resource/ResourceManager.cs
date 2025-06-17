@@ -69,7 +69,16 @@ public class ResourceManager : MonoBehaviour
 
     public void CollectResource(ResourceNode node)
     {
-        _activeResources.Remove(node);
         Destroy(node.gameObject);
+    }
+
+    public void OccupyResource(ResourceNode node)
+    {
+        _activeResources.Remove(node);
+    }
+
+    public bool ContainsResource(ResourceNode node)
+    {
+        return _activeResources.Contains(node);
     }
 }

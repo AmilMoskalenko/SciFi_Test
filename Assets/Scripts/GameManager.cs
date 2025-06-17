@@ -16,9 +16,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _resourcePrefab;
     [SerializeField] private Material _redMaterial;
     [SerializeField] private Material _blueMaterial;
+    [SerializeField] private ParticleSystem _redBaseParticles;
+    [SerializeField] private ParticleSystem _blueBaseParticles;
 
     private List<GameObject> _redDrones = new List<GameObject>();
     private List<GameObject> _blueDrones = new List<GameObject>();
+    private bool _showPath;
 
     public int DronesPerTeam
     {
@@ -82,6 +85,7 @@ public class GameManager : MonoBehaviour
         droneGO.GetComponent<Renderer>().material = team == Team.Red ? _redMaterial : _blueMaterial;
         var controller = droneGO.GetComponent<DroneController>();
         controller.Initialize(team, baseZone);
+        controller.SetShowPath(_showPath);
         if (team == Team.Red)
             _redDrones.Add(droneGO);
         else
@@ -126,6 +130,7 @@ public class GameManager : MonoBehaviour
 
     public void SetShowPathForAllDrones(bool show)
     {
+        _showPath = show;
         foreach (var drone in _redDrones)
         {
             var controller = drone.GetComponent<DroneController>();
@@ -138,5 +143,10 @@ public class GameManager : MonoBehaviour
             if (controller != null)
                 controller.SetShowPath(show);
         }
+    }
+
+    public ParticleSystem GetBaseParticles(Team team)
+    {
+        return team == Team.Red ? _redBaseParticles : _blueBaseParticles;
     }
 }
