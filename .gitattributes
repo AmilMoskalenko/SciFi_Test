@@ -1,2 +1,28 @@
-# Auto detect text files and perform LF normalization
+# Unity YAML files — treat as text and mergeable
+*.meta text merge=union
+*.unity text merge=union
+*.prefab text merge=union
+*.asset text merge=union
+*.mat text merge=union
+
+# Scripts
+*.cs text diff=csharp
+*.shader text
+*.cginc text
+
+# Ignore binary diffs for these
+*.png binary
+*.jpg binary
+*.fbx binary
+*.mp3 binary
+*.wav binary
+*.ogg binary
+*.mp4 binary
+*.ttf binary
+*.dll binary
+*.exe binary
+*.zip binary
+*.pdf binary
+
+# Normalize all text files to LF line endings
 * text=auto
