@@ -24,6 +24,7 @@ public class UIManager : MonoBehaviour
         _droneCountSlider.onValueChanged.AddListener(v => GameManager.Instance.DronesPerTeam = (int)v);
         _droneSpeedSlider.onValueChanged.AddListener(v => GameManager.Instance.DroneSpeed = v);
         _resourceIntervalSlider.onValueChanged.AddListener(v => GameManager.Instance.ResourceSpawnInterval = v);
+        _showPathToggle.onValueChanged.AddListener(v => GameManager.Instance.SetShowPathForAllDrones(v));
     }
 
     public void UpdateScore(Team team, int value)

@@ -13,17 +13,40 @@ public class DroneController : MonoBehaviour
     private DroneState _currentState = DroneState.Idle;
     private ResourceNode _currentTarget;
     private NavMeshAgent _agent;
+    private LineRenderer _lineRenderer;
+    private bool _showPath;
 
     private void Awake()
     {
         _agent = GetComponent<NavMeshAgent>();
+        _lineRenderer = GetComponent<LineRenderer>();
+        if (_lineRenderer == null)
+            _lineRenderer = gameObject.AddComponent<LineRenderer>();
+        _lineRenderer.positionCount = 0;
+        _lineRenderer.widthMultiplier = 0.1f;
+        _lineRenderer.enabled = false;
     }
 
     public void Initialize(Team t, Transform baseZ)
     {
         _team = t;
         _baseZone = baseZ;
+        UpdateSpeed();
         StartCoroutine(DroneLoop());
+    }
+
+    private void Update()
+    {
+        if (_showPath && _agent != null && _agent.hasPath)
+        {
+            _lineRenderer.enabled = true;
+            _lineRenderer.positionCount = _agent.path.corners.Length;
+            _lineRenderer.SetPositions(_agent.path.corners);
+        }
+        else if (_lineRenderer != null)
+        {
+            _lineRenderer.enabled = false;
+        }
     }
 
     private IEnumerator DroneLoop()
@@ -72,6 +95,19 @@ public class DroneController : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    public void UpdateSpeed()
+    {
+        if (_agent != null)
+            _agent.speed = GameManager.Instance.DroneSpeed;
+    }
+
+    public void SetShowPath(bool show)
+    {
+        _showPath = show;
+        if (!show && _lineRenderer != null)
+            _lineRenderer.enabled = false;
     }
 }
 

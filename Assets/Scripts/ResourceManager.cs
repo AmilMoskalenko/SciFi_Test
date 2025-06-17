@@ -9,6 +9,7 @@ public class ResourceManager : MonoBehaviour
     public static ResourceManager Instance;
 
     private List<ResourceNode> _activeResources = new List<ResourceNode>();
+    private Coroutine _spawnRoutine;
 
     private void Awake()
     {
@@ -17,7 +18,14 @@ public class ResourceManager : MonoBehaviour
 
     public void StartSpawning(GameObject prefab, float interval)
     {
-        StartCoroutine(SpawnRoutine(prefab, interval));
+        if (_spawnRoutine != null)
+            StopCoroutine(_spawnRoutine);
+        _spawnRoutine = StartCoroutine(SpawnRoutine(prefab, interval));
+    }
+
+    public void UpdateSpawnInterval(GameObject prefab, float newInterval)
+    {
+        StartSpawning(prefab, newInterval);
     }
 
     public void SpawnResource(GameObject prefab)
